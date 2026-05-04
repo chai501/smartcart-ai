@@ -1,0 +1,38 @@
+# render.yaml — Render.com Blueprint for free-tier deployment
+# Deploy with: https://dashboard.render.com/blueprints
+# Push this file to your GitHub repo, then click "New Blueprint" on Render.
+
+services:
+  # ── Node.js Backend ─────────────────────────
+  - type: web
+    name: smartcart-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false          # set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false          # set manually in Render dashboard
+      - key: ML_SERVICE_URL
+        fromService:
+          name: smartcart-ml
+          type: web
+          property: host     # Render injects the URL of the ML service
+      - key: FRONTEND_URL
+        sync: false          # set to your Vercel URL after deploy
+      - key: RAPIDAPI_KEY
+        sync: false          # set manually in Render dashboard
+
+  # ── Python ML Service ───────────────────────
+  - type: web
+    name: smartcart-ml
+    runtime: python
+    rootDir: data-science
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free

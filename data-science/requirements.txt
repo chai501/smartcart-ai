@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+fastai
+torch
+pandas
+scikit-learn
+datasets
+gunicorn

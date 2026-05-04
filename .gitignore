@@ -1,0 +1,27 @@
+# ─── dependencies ───
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pkl   # trained model weights (too large for git)
+
+# ─── env files ───
+.env
+.env.local
+.env.production
+
+# ─── build output ───
+frontend/dist/
+frontend/build/
+
+# ─── data files ───
+data-science/data/*.csv
+data-science/data/*.json
+data-science/data/*.gz
+
+# ─── misc ───
+.DS_Store
+Thumbs.db
+*.log
+.vscode/

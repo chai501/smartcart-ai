@@ -6,17 +6,28 @@ import os
 model_path = 'models/recommender.pkl'
 learn = None
 
+generic_items = ["B0BMGG6NKT", "B0B8S64Z6V", "B09SM24S8C", "B0C7S7D5LB"]
+
 def load_model():
     global learn
     if os.path.exists(model_path):
-        learn = load_learner(model_path)
-        print("Model loaded successfully.")
+        try:
+            learn = load_learner(model_path)
+            print("✅ Model loaded successfully.")
+        except Exception as e:
+            print(f"❌ Error loading model: {e}")
+            learn = None
     else:
-        print("Model not found. Please train the model first.")
+        print("⚠️ Model pkl not found. Using generic fallback mode.")
+        learn = None
 
 def get_recommendations(user_id: str, top_k: int = 5):
     if learn is None:
-        return {"error": "Model not loaded"}
+        return {
+            "user_id": user_id,
+            "recommendations": generic_items[:top_k],
+            "note": "AI model in training/missing, returning popular items."
+        }
     
     # Get all unique items from the dataloaders
     try:

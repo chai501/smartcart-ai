@@ -1,8 +1,11 @@
 fastapi
 uvicorn[standard]
 fastai
+--find-links https://download.pytorch.org/whl/cpu/torch_stable.html
 torch
+torchvision
 pandas
 scikit-learn
 datasets
 gunicorn
+ipython

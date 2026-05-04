@@ -15,15 +15,25 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-// --- CORS: only allow the configured frontend URL ---
+// --- CORS: allow both production and local development ---
 const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:3000",
-  "https://your-app.vercel.app" // replace with your real Vercel URL after deploy
-];
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:5173",
+  process.env.FRONTEND_URL // This will be your Vercel URL in production
+].filter(Boolean); // Remove null/undefined if FRONTEND_URL isn't set yet
+
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-    else callback(new Error("Not allowed by CORS"));
+    // Allow requests with no origin (like mobile apps or curl) 
+    // or if the origin is in our allowed list
+    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) {
+      callback(null, true);
+    } else {
+      console.error(`Blocked by CORS: ${origin}`);
+      callback(new Error("Not allowed by CORS"));
+    }
   },
   credentials: true
 }));

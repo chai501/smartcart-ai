@@ -5,6 +5,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pkl   # trained model weights (too large for git)
+!data-science/models/*.pkl
 
 # ─── env files ───
 .env

@@ -1,12 +1,14 @@
 from fastapi import FastAPI, HTTPException
 import recommender
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="Smart E-Commerce Recommendation Service")
-
-@app.on_event("startup")
-def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     # Load the model when the server starts
     recommender.load_model()
+    yield
+
+app = FastAPI(title="Smart E-Commerce Recommendation Service", lifespan=lifespan)
 
 @app.get("/")
 def read_root():

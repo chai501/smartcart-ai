@@ -252,9 +252,12 @@ app.get("/api/recommendations/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Fetch user preferences to personalise the fallback
-    const user = await User.findById(userId).select("favoriteProductTypes buyFrequency");
-    const prefTypes = user?.favoriteProductTypes || [];
+    // Fetch user preferences to personalise the fallback (skip if guest)
+    let prefTypes = [];
+    if (userId !== "anonymous_guest" && mongoose.Types.ObjectId.isValid(userId)) {
+      const user = await User.findById(userId).select("favoriteProductTypes buyFrequency");
+      prefTypes = user?.favoriteProductTypes || [];
+    }
 
     // 1. Get raw recommendations from the Python ML service
     const mlResponse = await axios.get(`${ML_SERVICE_URL}/recommend/${userId}?top_k=10`, {
@@ -290,8 +293,11 @@ app.get("/api/recommendations/:userId", async (req, res) => {
     console.error("Recommendations error:", error.message);
     // Graceful fallback: return popular products
     try {
-      const user = await User.findById(req.params.userId).select("favoriteProductTypes");
-      const prefTypes = user?.favoriteProductTypes || [];
+      let prefTypes = [];
+      if (req.params.userId !== "anonymous_guest" && mongoose.Types.ObjectId.isValid(req.params.userId)) {
+        const user = await User.findById(req.params.userId).select("favoriteProductTypes");
+        prefTypes = user?.favoriteProductTypes || [];
+      }
       const query = prefTypes.length > 0
         ? { category: { $in: prefTypes.map(t => new RegExp(t, "i")) } }
         : {};
@@ -432,6 +438,18 @@ app.get("/api/orders/:userId", async (req, res) => {
 app.get("/api/user-stats/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
+    if (userId === "anonymous_guest" || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.json({
+        totalSpent: 0,
+        totalItems: 0,
+        totalOrders: 0,
+        favoriteCategories: [],
+        favoriteProductTypes: [],
+        buyFrequency: "Low",
+        name: "Guest",
+        email: "guest@example.com"
+      });
+    }
     const user = await User.findById(userId).select("favoriteProductTypes buyFrequency name email");
     const orders = await Order.find({ userId });
     const totalSpent = orders.reduce((sum, o) => sum + o.totalAmount, 0);
@@ -493,4 +511,15 @@ const connectDB = async () => {
 
 connectDB().then(() => {
   app.listen(PORT, () => console.log(`🚀 Node server running on port ${PORT}`));
+}).catch(err => {
+  console.error("Critical failure during startup:", err);
+});
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
 });

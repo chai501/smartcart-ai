@@ -13,12 +13,12 @@ def load_model():
     if os.path.exists(model_path):
         try:
             learn = load_learner(model_path)
-            print("✅ Model loaded successfully.")
+            print("Model loaded successfully.")
         except Exception as e:
-            print(f"❌ Error loading model: {e}")
+            print(f"Error loading model: {e}")
             learn = None
     else:
-        print("⚠️ Model pkl not found. Using generic fallback mode.")
+        print("Model pkl not found. Using generic fallback mode.")
         learn = None
 
 def get_recommendations(user_id: str, top_k: int = 5):

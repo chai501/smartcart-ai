@@ -57,10 +57,10 @@ def download_and_prepare_data():
 
             df = pd.DataFrame(rows).dropna()
             all_reviews.append(df)
-            print(f"     ✅ Loaded {len(df):,} reviews from {category}")
+            print(f"     Loaded {len(df):,} reviews from {category}")
 
         except Exception as e:
-            print(f"     ❌ Failed to load {category}: {e}")
+            print(f"     Failed to load {category}: {e}")
 
     if not all_reviews:
         print("\nFailed to download any data.")
@@ -75,7 +75,7 @@ def download_and_prepare_data():
     csv_path = os.path.join("data", "reviews.csv")
     final_df.to_csv(csv_path, index=False)
 
-    print(f"\n✅ Saved {len(final_df):,} reviews to {csv_path}")
+    print(f"\nSaved {len(final_df):,} reviews to {csv_path}")
     print(f"   Unique users: {final_df['user_id'].nunique():,}")
     print(f"   Unique items: {final_df['item_id'].nunique():,}")
 
@@ -93,7 +93,7 @@ def _generate_synthetic_data(n_users=500, n_items=200, n_ratings=10_000):
     os.makedirs("data", exist_ok=True)
     csv_path = os.path.join("data", "reviews.csv")
     df.to_csv(csv_path, index=False)
-    print(f"⚠️  Saved {len(df):,} synthetic reviews to {csv_path}")
+    print(f"Saved {len(df):,} synthetic reviews to {csv_path}")
 
 
 if __name__ == "__main__":
